@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ANDROIDLOP DESKTOP</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f14;
+  color:white;
+  font-family:system-ui;
+  overflow:hidden;
+}
+
+/* barra top */
+.topbar{
+  height:40px;
+  background:#000;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 10px;
+  font-size:14px;
+  border-bottom:1px solid #222;
+}
+
+/* escritorio */
+.desktop{
+  height:calc(100vh - 40px);
+  padding:20px;
+  display:flex;
+  gap:20px;
+}
+
+/* iconos */
+.icon{
+  width:80px;
+  text-align:center;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.icon:hover{
+  transform:scale(1.1);
+}
+
+.square{
+  width:50px;
+  height:50px;
+  background:#00ff88;
+  margin:0 auto 5px;
+  border-radius:10px;
+}
+
+/* ventana terminal */
+.window{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  width:300px;
+  height:200px;
+  background:#000;
+  border:1px solid #00ff88;
+  padding:10px;
+  font-family:monospace;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>ANDROIDLOP OS</div>
+  <div id="clock"></div>
+</div>
+
+<div class="desktop">
+
+  <div class="icon" onclick="openApp('terminal.html')">
+    <div class="square"></div>
+    terminal
+  </div>
+
+  <div class="icon" onclick="openApp('files.html')">
+    <div class="square" style="background:#ff004c"></div>
+    files
+  </div>
+
+  <div class="icon" onclick="openApp('settings.html')">
+    <div class="square" style="background:#0099ff"></div>
+    settings
+  </div>
+
+</div>
+
+<div class="window">
+  system ready<br>
+  status: OK<br>
+  no threats detected
+</div>
+
+<script>
+function openApp(app){
+  window.location.href="apps/"+app;
+}
+
+setInterval(()=>{
+  const d = new Date();
+  document.getElementById("clock").innerText =
+    d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");
+},1000);
+</script>
+
+</body>
+</html>
