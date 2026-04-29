@@ -1,0 +1,86 @@
+package com.androidlop.core
+
+class MainActivity : AppCompatActivity() {
+
+    external fun processCore(input: Int): Int
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val btn = Button(this).apply {
+            text = "Run Rust Core"
+            setOnClickListener {
+                val out = processCore(42)
+                Toast.makeText(
+                    this@MainActivity,
+                    "Result: $out",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+        setContentView(btn)
+    }
+
+    companion object {
+        init {
+            System.loadLibrary("core_engine")
+        }
+    }
+}
+#[no_mangle]
+pub extern "C" fn processCore(input: i32) -> i32 {
+    let mut state = input;
+
+    // simulación de cálculo pesado real
+    for i in 0..10_000 {
+        state = state.wrapping_mul(31);
+        state ^= i;
+        state = state % 1_000_003;
+    }
+
+    state
+}
+#include <jni.h>
+
+extern int processCore(int input);
+
+JNIEXPORT jint JNICALL
+Java_com_androidlop_core_MainActivity_processCore(JNIEnv *env, jobject obj, jint input) {
+    return processCore(input);
+}
+import math
+
+def analyze(data: int):
+    score = math.sqrt(data * 1337) % 100
+
+    if score > 50:
+        return "OK_SYSTEM"
+    elif score > 20:
+        return "WARNING"
+    else:
+        return "CRITICAL"
+
+def ai_decision(x: int):
+    return (x * x) + (x // 3)
+   fun runPython(value: Int): String {
+    val py = Python.getInstance()
+    val module = py.getModule("ai")
+
+    val result = module.callAttr("analyze", value)
+    return result.toString()
+}
+cmake_minimum_required(VERSION 3.18.1)
+
+project("core_engine")
+
+add_library(core_engine SHARED
+    core.c
+    rust_core.rs
+)
+
+find_library(log-lib log)
+
+target_link_libraries(core_engine
+    ${log-lib}
+)
