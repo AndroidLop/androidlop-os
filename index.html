@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>ANDROIDLOP OS</title>
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#00ff88;
+  font-family:monospace;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:100vh;
+}
+
+.box{
+  text-align:left;
+  width:320px;
+}
+
+.bar{
+  height:10px;
+  background:#111;
+  margin-top:10px;
+  border:1px solid #00ff88;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:#00ff88;
+  animation:load 3s forwards;
+}
+
+@keyframes load{
+  to{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <p>ANDROIDLOP OS v1.0</p>
+  <p>booting system...</p>
+
+  <div class="bar">
+    <div class="fill"></div>
+  </div>
+
+  <p id="txt">loading kernel...</p>
+</div>
+
+<script>
+setTimeout(()=>{
+  window.location.href="desktop.html";
+},3200);
+</script>
+
+</body>
+</html>
