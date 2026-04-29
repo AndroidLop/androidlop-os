@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Settings</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f14;
+  color:white;
+  font-family:system-ui;
+  padding:20px;
+}
+
+.card{
+  background:#111;
+  padding:15px;
+  border:1px solid #333;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+
+label{
+  display:block;
+  margin-top:10px;
+  color:#aaa;
+}
+</style>
+</head>
+
+<body>
+
+<h2>SETTINGS</h2>
+
+<div class="card">
+  <h4>System</h4>
+  <label>Modo oscuro</label>
+  <input type="checkbox" checked>
+
+  <label>Animaciones</label>
+  <input type="checkbox" checked>
+</div>
+
+<div class="card">
+  <h4>Security</h4>
+  <label>Firewall</label>
+  <input type="checkbox" checked>
+
+  <label>Auto scan</label>
+  <input type="checkbox">
+</div>
+
+<div class="card">
+  <button onclick="back()">← volver</button>
+</div>
+
+<script>
+function back(){
+  window.location.href="../desktop.html";
+}
+</script>
+
+</body>
+</html>
