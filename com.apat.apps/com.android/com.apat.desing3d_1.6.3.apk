@@ -1,0 +1,222 @@
+// [KOTLIN + CPP + RUST + REACT] - Todo junto para com.apat.3d-desing
+// Archivo completo para copiar y pegar en un proyecto Android vacío
+// Estructura: Kotlin (principal), incluye CPP y Rust como Raw Strings, React incrustado
+
+package com.apat.design3d
+
+import android.os.Bundle
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import androidx.appcompat.app.AppCompatActivity
+
+// =================== KOTLIN ===================
+class MainActivity : AppCompatActivity() {
+    companion object {
+        init { System.loadLibrary("native-lib") }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val webView = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            addJavascriptInterface(JsBridge(), "AndroidBridge")
+            loadUrl("file:///android_asset/web/index.html")
+        }
+        setContentView(webView)
+    }
+
+    inner class JsBridge {
+        @JavascriptInterface
+        fun callNative(message: String): String {
+            val processed = nativeProcess(message)
+            return "🤖 Kotlin→CPP→Rust dice: $processed"
+        }
+    }
+
+    private external fun nativeProcess(input: String): String
+}
+
+// =================== C++ (embebido) ===================
+/* Generar archivo: app/src/main/cpp/native-lib.cpp */
+const val CPP_CODE = """
+#include <jni.h>
+#include <string>
+
+extern "C" {
+    // Prototipo de función Rust
+    const char* rust_process_geometry(const char* input);
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_apat_design3d_MainActivity_nativeProcess(
+        JNIEnv* env, jobject, jstring input) {
+    
+    const char* nativeStr = env->GetStringUTFChars(input, nullptr);
+    
+    // Llamada a Rust
+    const char* result = rust_process_geometry(nativeStr);
+    
+    env->ReleaseStringUTFChars(input, nativeStr);
+    return env->NewStringUTF(result);
+}
+"""
+
+// =================== RUST (embebido) ===================
+/* Generar archivo: app/rust/src/lib.rs + Cargo.toml */
+const val RUST_CODE = """
+use std::ffi::{CStr, CString};
+use std::os::raw::c_char;
+
+#[no_mangle]
+pub extern "C" fn rust_process_geometry(input: *const c_char) -> *const c_char {
+    let c_str = unsafe { CStr::from_ptr(input) };
+    let r_str = c_str.to_str().unwrap_or("invalid");
+    
+    // Simula cálculo 3D: rota vértices de un cubo
+    let response = format!("[RUST 3D] Procesado '{r_str}' | Vértices cubo: 8 → Optimizado ✅");
+    
+    CString::new(response).unwrap().into_raw()
+}
+"""
+
+const val RUST_CARGO_TOML = """
+[package]
+name = "rust_3d_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rust_3d_core"
+crate-type = ["cdylib"]
+"""
+
+// =================== REACT + THREE.JS (embebido) ===================
+/* Generar archivo: app/src/main/assets/web/index.html */
+const val REACT_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>3D Design - com.apat.3d-desing</title>
+    <style>
+        body { margin:0; overflow:hidden; }
+        canvas { display:block; }
+        #ui { position:absolute; top:10px; left:10px; 
+              background:rgba(0,0,0,0.7); color:white; padding:10px;
+              border-radius:8px; font-family:sans-serif; }
+        button { margin:5px; padding:8px; }
+    </style>
+    <!-- React + Three.js desde CDN para simplificar -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/three@0.160/build/three.min.js"></script>
+</head>
+<body>
+    <div id="ui">
+        <button onclick="rotateCube()">Girar Cubo (React)</button>
+        <button onclick="callNative()">Procesar en C++/Rust</button>
+        <div id="result"></div>
+    </div>
+    <div id="canvas-container"></div>
+
+    <script type="text/babel">
+        // React Component para escena 3D
+        const { useState, useEffect, useRef } = React;
+
+        function ThreeScene() {
+            const mountRef = useRef(null);
+            const [angle, setAngle] = useState(0);
+            let cubeRef = useRef(null);
+
+            useEffect(() => {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+                camera.position.z = 3;
+
+                const renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                mountRef.current.appendChild(renderer.domElement);
+
+                const geometry = new THREE.BoxGeometry(1, 1, 1);
+                const material = new THREE.MeshStandardMaterial({color: 0x6c5ce7, metalness: 0.3});
+                const cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                cubeRef.current = cube;
+
+                const light = new THREE.PointLight(0xffffff, 1);
+                light.position.set(2, 2, 2);
+                scene.add(light);
+
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    cube.rotation.x = angle;
+                    cube.rotation.y = angle * 0.7;
+                    renderer.render(scene, camera);
+                };
+                animate();
+            }, [angle]);
+
+            window.rotateCube = () => setAngle(a => a + 0.5);
+            return <div ref={mountRef}></div>;
+        }
+
+        ReactDOM.render(<ThreeScene />, document.getElementById('canvas-container'));
+
+        // Llamada al bridge nativo (Kotlin → C++ → Rust)
+        window.callNative = () => {
+            if (window.AndroidBridge) {
+                let resp = AndroidBridge.callNative("rotar_eje_z=45");
+                document.getElementById('result').innerText = resp;
+            } else {
+                document.getElementById('result').innerText = '❌ Bridge nativo no disponible';
+            }
+        };
+    </script>
+</body>
+</html>
+"""
+
+// =================== BUILD.GRADLE (auto-config) ===================
+const val GRADLE_CONFIG = """
+plugins {
+    id('com.android.application')
+    id('org.jetbrains.kotlin.android')
+}
+
+android {
+    namespace 'com.apat.design3d'
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.apat.3d-desing"
+        minSdk 26 targetSdk 34
+        ndk { abiFilters += ['arm64-v8a'] }
+    }
+    externalNativeBuild {
+        cmake { path "src/main/cpp/CMakeLists.txt" }
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.8.0'
+}
+"""
+
+// =================== SCRIPT GENERADOR ===================
+/**
+ * Script para generar todo el proyecto desde este único archivo.
+ * Ejecutar con:  kotlinc -script TresEnUnoApp.kt
+ * O copia manualmente los strings en los lugares indicados.
+ */
+fun main() {
+    println("=== Generando proyecto com.apat.3d-desing (todo en uno) ===")
+    println("1) Crea proyecto Android vacío con package com.apat.design3d")
+    println("2) Copia MainActivity de este archivo en app/src/main/java/com/apat/design3d/")
+    println("3) Copia CPP_CODE en app/src/main/cpp/native-lib.cpp")
+    println("4) Copia RUST_CODE en app/rust/src/lib.rs y RUST_CARGO_TOML en Cargo.toml")
+    println("5) Compila Rust: cd app/rust && cargo build --target aarch64-linux-android --release")
+    println("6) Copia .so a app/src/main/jniLibs/arm64-v8a/")
+    println("7) Copia REACT_HTML en app/src/main/assets/web/index.html")
+    println("Ejecuta: ./gradlew assembleDebug")
+}
