@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Terminal</title>
+<style>
+body{
+  background:#000;
+  color:#00ff88;
+  font-family:monospace;
+  padding:20px;
+}
+
+input{
+  background:black;
+  border:none;
+  color:#00ff88;
+  outline:none;
+  width:100%;
+}
+</style>
+</head>
+<body>
+
+<h3>ANDROIDLOP TERMINAL</h3>
+<div id="log">
+system ready...<br>
+</div>
+
+<input id="cmd" placeholder="escribe comando..." onkeydown="run(event)">
+
+<script>
+function run(e){
+  if(e.key==="Enter"){
+    let val = e.target.value;
+
+    let out = "";
+
+    if(val=="help") out="commands: help, status, scan";
+    else if(val=="status") out="system OK ✔";
+    else if(val=="scan") out="no threats found";
+    else out="command not found";
+
+    document.getElementById("log").innerHTML += "> "+val+"<br>"+out+"<br>";
+    e.target.value="";
+  }
+}
+</script>
+
+</body>
+</html>
