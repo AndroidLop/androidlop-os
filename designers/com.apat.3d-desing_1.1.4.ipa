@@ -1,0 +1,77 @@
+import SwiftUI
+import RealityKit
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Text("ANDROIDLOP 3D CORE")
+                .font(.title)
+                .padding()
+
+            ARViewContainer()
+                .frame(height: 400)
+
+            Button("Run Rust Logic") {
+                RustBridge.runEngine()
+            }
+        }
+    }
+}
+
+struct ARViewContainer: UIViewRepresentable {
+    func makeUIView(context: Context) -> ARView {
+        let arView = ARView(frame: .zero)
+
+        let box = MeshResource.generateBox(size: 0.1)
+        let material = SimpleMaterial(color: .blue, isMetallic: true)
+        let entity = ModelEntity(mesh: box, materials: [material])
+
+        let anchor = AnchorEntity(world: [0,0,-0.5])
+        anchor.addChild(entity)
+        arView.scene.anchors.append(anchor)
+
+        return arView
+    }
+
+    func updateUIView(_ uiView: ARView, context: Context) {}
+}
+import SQLite3
+
+class DB {
+    var db: OpaquePointer?
+
+    init() {
+        sqlite3_open("app.db", &db)
+
+        let query = """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY,
+            name TEXT
+        );
+        """
+
+        sqlite3_exec(db, query, nil, nil, nil)
+    }
+
+    func insertUser(name: String) {
+        let stmt = "INSERT INTO users (name) VALUES ('\(name)')"
+        sqlite3_exec(db, stmt, nil, nil, nil)
+    }
+}
+#[no_mangle]
+pub extern "C" fn process_data(value: i32) -> i32 {
+    let result = value * 42;
+    println!("Rust engine running: {}", result);
+    result
+}
+import Foundation
+
+class RustBridge {
+    @_silgen_name("process_data")
+    static func process_data(_ value: Int32) -> Int32
+
+    static func runEngine() {
+        let result = process_data(10)
+        print("Rust result: \(result)")
+    }
+}
