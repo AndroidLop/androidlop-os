@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Files</title>
+
+<style>
+body{
+  margin:0;
+  background:#0b0f14;
+  color:white;
+  font-family:system-ui;
+  padding:20px;
+}
+
+.file{
+  background:#111;
+  padding:10px;
+  border:1px solid #333;
+  margin-bottom:10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.file:hover{
+  border-color:#00ff88;
+}
+</style>
+</head>
+
+<body>
+
+<h2>FILES</h2>
+
+<div class="file">system.log</div>
+<div class="file">users.db</div>
+<div class="file">config.sys</div>
+<div class="file">hidden/kernel.dll</div>
+
+<br>
+
+<button onclick="back()">← volver</button>
+
+<script>
+function back(){
+  window.location.href="../desktop.html";
+}
+</script>
+
+</body>
+</html>
